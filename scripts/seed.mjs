@@ -7,7 +7,7 @@ try {
   process.loadEnvFile?.(".env.local");
 } catch {}
 
-const sql = postgres(process.env.DATABASE_URL ?? "postgres://plott:plott@localhost:5432/plott", { max: 1 });
+const sql = postgres(process.env.DATABASE_URL ?? process.env.POSTGRES_URL ?? "postgres://plott:plott@localhost:5432/plott", { max: 1 });
 
 const people = [
   { id: "demo-maya", email: "maya@demo.invalid", instagram: "maya.dreams" },

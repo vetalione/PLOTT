@@ -9,9 +9,12 @@ try {
   process.loadEnvFile?.(".env.local");
 } catch {}
 
-const url = process.env.DATABASE_URL;
+const url = process.env.DATABASE_URL ?? process.env.POSTGRES_URL;
 if (!url) {
-  console.error("migrate: DATABASE_URL is not set — add a Postgres database and expose its URL.");
+  console.error(
+    "migrate: no database connection string. Connect a Postgres database to the project so that " +
+      "DATABASE_URL (or POSTGRES_URL) is set for this environment, then redeploy.",
+  );
   process.exit(1);
 }
 

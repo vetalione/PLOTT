@@ -51,7 +51,7 @@ npm run dev
 
 | Переменная | Обязательна | Зачем |
 | --- | --- | --- |
-| `DATABASE_URL` | да | Строка подключения к Postgres |
+| `DATABASE_URL` | да | Строка подключения к Postgres. Подойдёт и `POSTGRES_URL`, если интеграция задаёт её под этим именем |
 | `BETTER_AUTH_SECRET` | да | Секрет для подписи сессий: `openssl rand -base64 32` |
 | `BETTER_AUTH_URL` | вне Vercel и Railway | Публичный адрес приложения, например `https://wish.example.com` |
 | `RESEND_API_KEY` | нет | Ключ Resend — включает вход по ссылке и сброс пароля |
@@ -63,9 +63,10 @@ npm run dev
 ## Деплой на Vercel
 
 1. Импортируйте репозиторий в Vercel (New Project → Import Git Repository).
-2. Подключите Postgres: Storage → Create Database → Neon. Переменная `DATABASE_URL` появится в проекте сама.
-3. В Settings → Environment Variables добавьте `BETTER_AUTH_SECRET`.
-4. Запустите деплой.
+2. Подключите Postgres: вкладка Storage → Create Database → Neon, затем Connect Project с отмеченными
+   окружениями Production и Preview. Переменная `DATABASE_URL` появится в проекте сама.
+3. В Settings → Environment Variables добавьте `BETTER_AUTH_SECRET` (значение: `openssl rand -base64 32`).
+4. Запустите деплой заново: Deployments → последний деплой → Redeploy. Переменные подхватываются только новой сборкой.
 
 Сборка идёт через скрипт `vercel-build`: сначала применяются миграции, затем `next build`.
 Если `DATABASE_URL` не задан, сборка остановится с понятным сообщением.
