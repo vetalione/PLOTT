@@ -1,0 +1,114 @@
+# Кнопка Желаний
+
+Загадай желание, нажми на кнопку, поддержи желания других. Переезд прототипа с Bubble на собственный стек:
+Next.js + Postgres, интерфейс на компонентах [plush](https://plush-ui.pages.dev/).
+
+## Что умеет
+
+- **Кнопка** — текст желания, срок «исполнить до», видимость (всем / только мне) и большая кнопка с анимацией.
+- **Желания** — общая лента (новые / топ по аплодисментам) и свои желания (загаданные / исполненные):
+  отметить исполненным, вернуть, удалить.
+- **Статистика** — личное кольцо «исполнено N из M», общие цифры и график по дням за 30 дней.
+- **Профиль** — Instagram-ник, пароль, выход.
+- **Гости** — загадывать можно без регистрации; после регистрации или входа гостевые желания переезжают в аккаунт.
+- **Вход** — почта и пароль; вход по ссылке из письма и сброс пароля включаются, когда настроена отправка почты.
+
+## Стек
+
+| Слой | Что используется |
+| --- | --- |
+| Приложение | Next.js 16 (App Router), React 19, TypeScript |
+| Интерфейс | Tailwind CSS 4, компоненты plush (shadcn-реестр, Radix), Hugeicons |
+| Данные | Postgres, Drizzle ORM, SQL-миграции в `drizzle/` |
+| Авторизация | better-auth: пароль, magic link, анонимные сессии |
+| Почта | Resend (необязательно) |
+
+## Локальный запуск
+
+Нужны Node.js 20.9+ и Postgres.
+
+```bash
+cp .env.example .env.local
+```
+
+```bash
+npm install
+```
+
+```bash
+npm run db:migrate
+```
+
+```bash
+npm run dev
+```
+
+Скрипты базы сами читают `.env.local`. Демо-желания для пустой базы: `npm run db:seed`.
+
+Без `RESEND_API_KEY` в режиме разработки письма не отправляются — ссылка для входа печатается в лог сервера.
+
+## Переменные окружения
+
+| Переменная | Обязательна | Зачем |
+| --- | --- | --- |
+| `DATABASE_URL` | да | Строка подключения к Postgres |
+| `BETTER_AUTH_SECRET` | да | Секрет для подписи сессий: `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | вне Vercel и Railway | Публичный адрес приложения, например `https://wish.example.com` |
+| `RESEND_API_KEY` | нет | Ключ Resend — включает вход по ссылке и сброс пароля |
+| `EMAIL_FROM` | нет | Отправитель писем, например `Кнопка Желаний <hello@example.com>` |
+
+На Vercel адрес берётся из `VERCEL_PROJECT_PRODUCTION_URL`, на Railway — из `RAILWAY_PUBLIC_DOMAIN`.
+Если подключён собственный домен, задайте `BETTER_AUTH_URL` явно.
+
+## Деплой на Vercel
+
+1. Импортируйте репозиторий в Vercel (New Project → Import Git Repository).
+2. Подключите Postgres: Storage → Create Database → Neon. Переменная `DATABASE_URL` появится в проекте сама.
+3. В Settings → Environment Variables добавьте `BETTER_AUTH_SECRET`.
+4. Запустите деплой.
+
+Сборка идёт через скрипт `vercel-build`: сначала применяются миграции, затем `next build`.
+Если `DATABASE_URL` не задан, сборка остановится с понятным сообщением.
+
+## Деплой на Railway
+
+1. New Project → Deploy from GitHub repo → этот репозиторий.
+2. Добавьте в проект базу: New → Database → PostgreSQL.
+3. В переменных сервиса приложения задайте `DATABASE_URL=${{Postgres.DATABASE_URL}}` и `BETTER_AUTH_SECRET`.
+4. В Settings → Networking сгенерируйте публичный домен.
+
+Railway выполняет `npm run build`, затем `npm start`; миграции применяются при каждом старте, перед `next start`.
+
+## Команды
+
+| Команда | Что делает |
+| --- | --- |
+| `npm run dev` | Сервер разработки |
+| `npm run build` | Production-сборка |
+| `npm start` | Миграции + production-сервер |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Генерация типов маршрутов и `tsc` |
+| `npm run db:generate` | Новая миграция по изменениям в `src/db/schema.ts` |
+| `npm run db:migrate` | Применить миграции |
+| `npm run db:seed` | Демо-данные для разработки |
+
+## Устройство проекта
+
+```
+src/
+  app/
+    (app)/            экраны с общей навигацией: /, /wishes, /stats, /profile
+    api/              auth, wishes, stats, me, account
+    reset-password/   страница нового пароля из письма
+    plush.css         токены plush (цвета, радиусы, пружины анимаций)
+  components/
+    ui/               компоненты plush
+    wish-button.tsx   кнопка с орбитами и конфетти
+    auth-dialog.tsx   регистрация, вход, вход по ссылке, сброс пароля
+  db/                 схема Drizzle и подключение
+  lib/                авторизация, почта, клиентские хуки
+drizzle/              SQL-миграции
+scripts/              migrate.mjs, seed.mjs
+```
+
+Компоненты plush добавляются из реестра: `npx shadcn@latest add https://plush-ui.pages.dev/r/<имя>.json`.

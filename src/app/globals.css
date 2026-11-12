@@ -1,0 +1,344 @@
+@import "tailwindcss";
+@import "@fontsource-variable/nunito/index.css";
+@import "./plush.css";
+
+:root {
+  /* Open Runde ships Latin only; Nunito carries the Cyrillic where the system has no rounded face. */
+  --plush-font: ui-rounded, "SF Pro Rounded", "Nunito Variable", "Open Runde", system-ui, sans-serif;
+  --app-column: 460px;
+  --nav-clearance: 116px;
+  color-scheme: light;
+}
+
+html {
+  background: var(--plush-bg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--plush-bg);
+  color: var(--plush-ink);
+  font-family: var(--plush-font);
+  font-weight: var(--plush-weight-medium);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--plush-select-b) 55%, transparent);
+}
+
+/* ── Page entrance: sections rise in one after another ─────────────────── */
+
+@keyframes app-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: app-rise var(--plush-dur-spring) var(--plush-ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+@keyframes app-pop {
+  0% {
+    scale: 1;
+  }
+  40% {
+    scale: 1.28;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes app-shake {
+  0%,
+  100% {
+    translate: 0;
+  }
+  20% {
+    translate: -7px;
+  }
+  40% {
+    translate: 6px;
+  }
+  60% {
+    translate: -4px;
+  }
+  80% {
+    translate: 2px;
+  }
+}
+
+.shake {
+  animation: app-shake 420ms ease-in-out;
+}
+
+/* ── The wish button ───────────────────────────────────────────────────── */
+
+@keyframes wish-orbit {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes wish-breathe {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.035;
+  }
+}
+
+@keyframes wish-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    scale: 1;
+  }
+  50% {
+    opacity: 0.9;
+    scale: 1.08;
+  }
+}
+
+@keyframes wish-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes wish-done-pop {
+  0% {
+    scale: 0.9;
+  }
+  45% {
+    scale: 1.09;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes wish-shockwave {
+  from {
+    opacity: 0.7;
+    scale: 0.7;
+  }
+  to {
+    opacity: 0;
+    scale: 1.9;
+  }
+}
+
+.wish-stage {
+  /* shrinks on short screens so the button stays above the navigation without scrolling */
+  --wish-size: clamp(128px, 21dvh, 172px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, calc(var(--wish-size) * 1.98));
+  aspect-ratio: 1;
+  isolation: isolate;
+}
+
+.wish-glow {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, color-mix(in oklab, var(--plush-select-b) 55%, transparent), transparent 72%),
+    radial-gradient(closest-side at 30% 65%, color-mix(in oklab, var(--plush-pink) 30%, transparent), transparent 70%);
+  filter: blur(22px);
+  animation: wish-glow 5.5s ease-in-out infinite;
+  z-index: -1;
+}
+
+.wish-rings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  transition:
+    scale var(--plush-dur-spring) var(--plush-ease-spring),
+    opacity 420ms ease;
+}
+
+.wish-ring {
+  /* the viewBox is centred on 0,0, so the user-space origin is the middle of the stage */
+  transform-origin: 0 0;
+  animation: wish-orbit var(--d, 20s) linear infinite;
+}
+
+.wish-stage[data-state="charging"] .wish-rings {
+  scale: 0.8;
+}
+
+.wish-stage[data-state="done"] .wish-rings {
+  scale: 1.22;
+  opacity: 0;
+  transition:
+    scale 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 900ms ease-out;
+}
+
+.wish-socket {
+  display: grid;
+  place-items: center;
+  width: calc(var(--wish-size) + 36px);
+  height: calc(var(--wish-size) + 36px);
+  border-radius: 50%;
+  background: var(--plush-panel);
+  box-shadow:
+    inset 0 2px 6px rgba(20, 20, 20, 0.08),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.9),
+    0 0 0 1px rgba(20, 20, 20, 0.02);
+  animation: wish-breathe 5.5s ease-in-out infinite;
+}
+
+.wish-stage[data-state="charging"] .wish-socket {
+  animation-duration: 0.9s;
+}
+
+.wish-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--wish-size);
+  height: var(--wish-size);
+  border-radius: 50%;
+  color: var(--plush-on-accent);
+  background: radial-gradient(130% 130% at 32% 18%, #414141 0%, #1b1b1b 42%, #0a0a0a 100%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -10px 18px rgba(0, 0, 0, 0.55),
+    0 22px 44px -8px rgba(20, 20, 20, 0.42),
+    0 6px 12px rgba(20, 20, 20, 0.22);
+  transition:
+    scale var(--plush-dur-spring) var(--plush-ease-spring),
+    box-shadow 240ms ease,
+    background 300ms ease,
+    color 300ms ease;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.wish-btn::before {
+  /* the soft highlight a domed button catches from above */
+  content: "";
+  position: absolute;
+  inset: 7% 16% 52% 16%;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .wish-btn:hover:not(:disabled) {
+    scale: 1.035;
+  }
+}
+
+.wish-btn:active:not(:disabled),
+.wish-stage[data-state="charging"] .wish-btn {
+  scale: 0.9;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -6px 14px rgba(0, 0, 0, 0.6),
+    0 8px 18px -6px rgba(20, 20, 20, 0.4),
+    0 2px 5px rgba(20, 20, 20, 0.2);
+}
+
+.wish-btn:focus-visible {
+  outline: 2px solid var(--plush-ink);
+  outline-offset: 6px;
+}
+
+.wish-btn:disabled {
+  cursor: default;
+}
+
+.wish-stage[data-state="done"] .wish-btn {
+  color: var(--plush-on-select);
+  background: var(--plush-select-fill);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -10px 18px color-mix(in oklab, var(--plush-select-a), black 30%),
+    0 22px 44px -8px color-mix(in oklab, var(--plush-select-a) 55%, transparent),
+    0 6px 12px rgba(20, 20, 20, 0.12);
+  animation: wish-done-pop 620ms var(--plush-ease-spring);
+}
+
+.wish-shockwave {
+  position: absolute;
+  width: var(--wish-size);
+  height: var(--wish-size);
+  border-radius: 50%;
+  border: 2px solid var(--plush-select-a);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wish-stage[data-state="done"] .wish-shockwave {
+  animation: wish-shockwave 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.wish-glyph {
+  width: 42%;
+  height: 42%;
+  overflow: visible;
+}
+
+.wish-glyph path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 220ms ease;
+}
+
+.wish-glyph .arc {
+  transform-origin: 12px 12px;
+}
+
+.wish-stage[data-state="charging"] .wish-glyph .arc {
+  animation: wish-orbit 0.8s linear infinite;
+}
+
+.wish-stage[data-state="charging"] .wish-glyph .stem,
+.wish-stage[data-state="done"] .wish-glyph .stem,
+.wish-stage[data-state="done"] .wish-glyph .arc,
+.wish-stage:not([data-state="done"]) .wish-glyph .check {
+  opacity: 0;
+}
+
+.wish-stage[data-state="done"] .wish-glyph .check {
+  stroke-width: 2.6;
+  stroke-dasharray: 1;
+  animation: wish-draw 420ms 160ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wish-ring,
+  .wish-glow,
+  .wish-socket,
+  .rise {
+    animation: none;
+  }
+}

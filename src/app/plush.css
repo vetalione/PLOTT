@@ -1,0 +1,279 @@
+/* plush tokens — generated from https://plush-ui.pages.dev/r/tokens.json */
+@import "@fontsource/open-runde/500.css";
+@import "@fontsource/open-runde/600.css";
+
+:root {
+  --plush-bg: #fbfbfa;
+  --plush-panel: #f3f3f1;
+  --plush-panel-tint: #e9e9e6;
+  --plush-surface: #ffffff;
+  --plush-fill: #f0f0ee;
+  --plush-fill-strong: #e8e8e5;
+  --plush-line: #e4e4e1;
+  --plush-control-off: #e4e4e1;
+  --plush-ink: #141414;
+  --plush-ink-2: #6e6e72;
+  --plush-ink-3: #a3a3a6;
+  --plush-accent: #161616;
+  --plush-on-accent: #ffffff;
+  --plush-on-accent-2: rgba(255, 255, 255, .58);
+  --plush-on-accent-track: rgba(255, 255, 255, .16);
+  --plush-on-accent-track-hover: rgba(255, 255, 255, .28);
+  --plush-on-accent-track-press: rgba(255, 255, 255, .40);
+  --plush-accent-tint: #efefec;
+  --plush-accent-hover: color-mix(in oklab, var(--plush-accent), var(--plush-on-accent) 12%);
+  --plush-scrim: color-mix(in oklab, var(--plush-ink) 32%, transparent);
+  --plush-flash: rgba(255, 255, 255, .58);
+  --plush-success: #2fc26b;
+  --plush-danger: #f2473d;
+  --plush-warning: #f5a524;
+  --plush-pink: #ee4a92;
+  --plush-danger-hover: color-mix(in oklab, var(--plush-danger), var(--plush-on-accent) 12%);
+  --plush-badge: var(--plush-danger);
+  --plush-on-success: #ffffff;
+  --plush-select-a: #16c26b;
+  --plush-select-b: #b8e62e;
+  --plush-select-line: linear-gradient(90deg, var(--plush-select-a), var(--plush-select-b));
+  --plush-select-up: linear-gradient(0deg, var(--plush-select-a), var(--plush-select-b));
+  --plush-select-fill: linear-gradient(135deg, var(--plush-select-a), var(--plush-select-b));
+  --plush-on-select: #141414;
+  --plush-select-gloss: inset 0 1px 0 rgba(255, 255, 255, .45);
+  --plush-select-mark: color-mix(in oklab, var(--plush-select-a) 30%, transparent);
+  --plush-select-knob-shadow: 0 1px 3px color-mix(in srgb, color-mix(in oklab, var(--plush-select-a), black 45%) 35%, transparent), 0 2px 8px color-mix(in srgb, var(--plush-select-a) 18%, transparent);
+  --plush-radius-panel: 40px;
+  --plush-radius-sheet: 32px;
+  --plush-radius-card: 28px;
+  --plush-radius-row: 16px;
+  --plush-radius-item: 10px;
+  --plush-radius-full: 999px;
+  --plush-radius-check: 9px;
+  --plush-radius-tooltip: 14px;
+  --plush-radius-caret: 2px;
+  --plush-shadow-soft: 0 1px 2px rgba(20, 20, 20, .04), 0 8px 24px rgba(20, 20, 20, .04);
+  --plush-shadow-knob: 0 1px 3px rgba(20, 20, 20, .16), 0 2px 8px rgba(20, 20, 20, .06);
+  --plush-card-shadow: var(--plush-shadow-soft);
+  --plush-active-shadow: var(--plush-shadow-knob);
+  --plush-font: ui-rounded, "SF Pro Rounded", "Open Runde", system-ui, sans-serif;
+  --plush-weight-medium: 500;
+  --plush-weight-semi: 600;
+  --plush-leading: 1.18;
+  --plush-text-xs: 13px;
+  --plush-text-sm: 14px;
+  --plush-text-md: 15px;
+  --plush-text-lg: 16px;
+  --plush-text-xl: 17px;
+  --plush-text-2xl: 20px;
+  --plush-text-btn: 18px;
+  --plush-text-avatar-lg: 18px;
+  --plush-text-counter: 40px;
+  --plush-text-counter-lg: 60px;
+  --plush-pad: 20px;
+  --plush-h-btn: 56px;
+  --plush-h-btn-sm: 50px;
+  --plush-h-field: 56px;
+  --plush-h-tab: 48px;
+  --plush-h-chip: 42px;
+  --plush-h-status: 52px;
+  --plush-h-step: 52px;
+  --plush-h-icon: 56px;
+  --plush-h-code: 60px;
+  --plush-h-option: 56px;
+  --plush-h-toast: 60px;
+  --plush-toggle-w: 52px;
+  --plush-toggle-h: 32px;
+  --plush-knob: 28px;
+  --plush-track: 8px;
+  --plush-h-row: 44px;
+  --plush-toggle-w-sm: 39px;
+  --plush-toggle-h-sm: 24px;
+  --plush-knob-sm: 20px;
+  --plush-knob-stretch: 6px;
+  --plush-cal-day: 44px;
+  --plush-cal-nav: 32px;
+  --plush-check: 26px;
+  --plush-radio: 24px;
+  --plush-radio-dot: 10px;
+  --plush-h-chip-sm: 32px;
+  --plush-h-chip-lg: 48px;
+  --plush-code-box: 52px;
+  --plush-code-gap: 10px;
+  --plush-text-code: 26px;
+  --plush-caret-w: 2px;
+  --plush-caret-h: 28px;
+  --plush-tooltip-dot: 20px;
+  --plush-h-btn-lg: 64px;
+  --plush-h-step-sm: 44px;
+  --plush-w-dialog: 396px;
+  --plush-avatar: 32px;
+  --plush-avatar-sm: 28px;
+  --plush-avatar-lg: 46px;
+  --plush-avatar-ring: 3px;
+  --plush-avatar-overlap: .26;
+  --plush-avatar-overlap-tight: .39;
+  --plush-steps-mark: 24px;
+  --plush-steps-dot: 8px;
+  --plush-star: 28px;
+  --plush-star-gap: 4px;
+  --plush-ring: 120px;
+  --plush-ring-stroke-part: calc(10 / 120);
+  --plush-ring-text-part: calc(30 / 120);
+  --plush-roll: .4em;
+  --plush-roll-lg: .67em;
+  --plush-disabled-opacity: .5;
+  --plush-hover-grow: 1.06;
+  --plush-hover-bright: 1.05;
+  --plush-press-scale: .86;
+  --plush-press-scale-check: .82;
+  --plush-press-scale-pill: .95;
+  --plush-press-scale-wide: .93;
+  --plush-press-scale-row: .97;
+  --plush-pop-scale: .55;
+  --plush-plate-opacity: .22;
+  --plush-radio-plate-opacity: .34;
+  --plush-radio-plate-edge: inset 0 0 0 1px color-mix(in oklab, var(--plush-select-a), var(--plush-ink) 30%);
+  --plush-surface-press: color-mix(in oklab, var(--plush-surface), var(--plush-ink) 10%);
+  --plush-pop-peak-counter: 1.08;
+  --plush-pop-peak-progress: 1.12;
+  --plush-pop-peak-steps: 1.18;
+  --plush-pop-peak-rating: 1.22;
+  --plush-fill-press: color-mix(in oklab, var(--plush-fill), var(--plush-ink) 10%);
+  --plush-control-hover: color-mix(in oklab, var(--plush-fill-strong), var(--plush-ink) 6%);
+  --plush-surface-hover: var(--plush-surface);
+  --plush-fill-soft: color-mix(in oklab, var(--plush-fill) 50%, var(--plush-surface));
+  --plush-focus-color: var(--plush-ink);
+  --plush-focus-width: 2px;
+  --plush-focus-offset: 2px;
+  --plush-tempo: 0.7;
+  --plush-ease-spring: linear(0, 0.062, 0.203, 0.372, 0.538, 0.683, 0.801, 0.89, 0.952, 0.993, 1.016, 1.028, 1.031, 1.029, 1.025, 1.02, 1.015, 1.01, 1.006, 1.004, 1.002, 1, 1, 0.999, 0.999, 0.999, 0.999, 0.999, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+  --plush-dur-spring: calc(1045ms * var(--plush-tempo));
+  --plush-ease-soft: linear(0, 0.058, 0.19, 0.35, 0.508, 0.65, 0.766, 0.856, 0.922, 0.968, 0.997, 1.013, 1.021, 1.023, 1.022, 1.019, 1.015, 1.012, 1.008, 1.006, 1.003, 1.002, 1.001, 1, 1, 1, 0.999, 0.999, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+  --plush-dur-soft: calc(1150ms * var(--plush-tempo));
+  --plush-ease-calm: linear(0, 0.051, 0.166, 0.309, 0.452, 0.584, 0.696, 0.787, 0.858, 0.911, 0.949, 0.975, 0.992, 1.002, 1.008, 1.01, 1.011, 1.01, 1.009, 1.007, 1.006, 1.004, 1.003, 1.002, 1.001, 1.001, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+  --plush-dur-calm: calc(1278ms * var(--plush-tempo));
+  --plush-ease-fade: cubic-bezier(.333, 0, .667, 1);
+  --plush-dur-fast: 120ms;
+  --plush-dur-fade: 200ms;
+  --plush-dur-slow: 300ms;
+  --plush-stagger: calc(65ms * var(--plush-tempo));
+  --plush-beat: calc(300ms * var(--plush-tempo));
+  --plush-slide: 26px;
+  --plush-ease-drop: cubic-bezier(.333, 0, .667, 0);
+  --plush-dur-drop: calc(400ms * var(--plush-tempo));
+  --plush-dur-pop: calc(400ms * var(--plush-tempo));
+  --plush-ease-spin: linear;
+  --plush-dur-spin: 1000ms;
+}
+
+:root[data-plush-font="fallback"], [data-plush-font="fallback"] {
+  --plush-font: "Open Runde", system-ui, sans-serif;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --plush-dur-spring: 0ms;
+    --plush-dur-soft: 0ms;
+    --plush-dur-calm: 0ms;
+    --plush-stagger: 0ms;
+    --plush-beat: 0ms;
+    --plush-dur-drop: 0ms;
+    --plush-dur-pop: 0ms;
+    --plush-dur-spin: 0ms;
+  }
+}
+@layer base {
+  @keyframes plush-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes plush-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes plush-rise-in {
+    from {
+      transform: translateY(10px) scale(.92);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes plush-rise-out {
+    from {
+      transform: none;
+    }
+    to {
+      transform: translateY(10px) scale(.92);
+    }
+  }
+  @keyframes plush-grow-in {
+    from {
+      transform: scale(.92);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes plush-grow-out {
+    from {
+      transform: none;
+    }
+    to {
+      transform: scale(.92);
+    }
+  }
+  @keyframes plush-accordion-down {
+    from {
+      height: calc(var(--radix-accordion-content-height) * (1 - var(--plush-pop-armed)));
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes plush-accordion-fade-in {
+    from {
+      opacity: calc(1 - var(--plush-pop-armed));
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes plush-accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes plush-pop {
+    50% {
+      scale: calc(1 + (var(--plush-pop-peak, 1) - 1) * var(--plush-pop-armed, 1));
+    }
+  }
+  @keyframes plush-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+}
+@utility plush-font {
+  font-family: var(--plush-font);
+  -webkit-font-smoothing: antialiased;
+}
+@utility plush-focus-ring {
+  &:focus-visible {
+    outline: var(--plush-focus-width) solid var(--plush-focus-color);
+    outline-offset: var(--plush-focus-offset);
+  }
+}
+@utility plush-on-dark {
+  --plush-focus-color: var(--plush-on-accent);
+  --plush-surface-hover: var(--plush-fill);
+}

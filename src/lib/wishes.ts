@@ -1,0 +1,52 @@
+import { and, eq, inArray } from "drizzle-orm";
+import { db, schema } from "@/db";
+
+export type WishDTO = {
+  id: string;
+  text: string;
+  dueDate: string | null;
+  isPublic: boolean;
+  status: "wished" | "done";
+  doneAt: string | null;
+  createdAt: string;
+  clapsCount: number;
+  mine: boolean;
+  clapped: boolean;
+  instagram: string | null;
+};
+
+type Row = typeof schema.wish.$inferSelect & { instagram?: string | null };
+
+export async function toDTO(rows: Row[], viewerId: string | null): Promise<WishDTO[]> {
+  let clapped = new Set<string>();
+  if (viewerId && rows.length > 0) {
+    const mine = await db
+      .select({ wishId: schema.clap.wishId })
+      .from(schema.clap)
+      .where(
+        and(
+          eq(schema.clap.userId, viewerId),
+          inArray(
+            schema.clap.wishId,
+            rows.map((r) => r.id),
+          ),
+        ),
+      );
+    clapped = new Set(mine.map((m) => m.wishId));
+  }
+  return rows.map((r) => ({
+    id: r.id,
+    text: r.text,
+    dueDate: r.dueDate,
+    isPublic: r.isPublic,
+    status: r.status,
+    doneAt: r.doneAt ? r.doneAt.toISOString() : null,
+    createdAt: r.createdAt.toISOString(),
+    clapsCount: r.clapsCount,
+    mine: r.userId === viewerId,
+    clapped: clapped.has(r.id),
+    instagram: r.instagram ?? null,
+  }));
+}
+
+export const WISH_MAX_LENGTH = 280;
