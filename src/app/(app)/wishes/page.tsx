@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { mutate } from "swr";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/app-shell";
@@ -16,10 +17,21 @@ import type { WishDTO } from "@/lib/wishes";
 
 type Scope = "all" | "mine";
 
+// Reading the query string needs a Suspense boundary so the rest of the page can still be prerendered.
 export default function WishesPage() {
+  return (
+    <React.Suspense>
+      <Wishes />
+    </React.Suspense>
+  );
+}
+
+function Wishes() {
   const { data: me } = useMe();
   const auth = useAuthDialog();
-  const [scope, setScope] = React.useState<Scope>("all");
+  // Links from emails land on the viewer's own wishes: /wishes?tab=mine
+  const params = useSearchParams();
+  const [scope, setScope] = React.useState<Scope>(params.get("tab") === "mine" ? "mine" : "all");
   const [sort, setSort] = React.useState<"new" | "top">("new");
   const [status, setStatus] = React.useState<"wished" | "done">("wished");
   const [celebrating, setCelebrating] = React.useState<WishDTO | null>(null);

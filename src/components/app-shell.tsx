@@ -27,8 +27,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (!url.searchParams.has("error")) return;
     url.searchParams.delete("error");
     window.history.replaceState(null, "", url);
-    const id = window.setTimeout(() => toast.error("Ссылка недействительна или устарела. Запроси новую."), 300);
-    return () => window.clearTimeout(id);
+    // No cleanup on purpose: the parameter is already gone, so a re-run of this effect would stay silent.
+    window.setTimeout(() => toast.error("Ссылка уже использована или устарела. Войди заново — пришлём новую."), 300);
   }, []);
 
   return (

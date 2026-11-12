@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "relaunch_sent_at" timestamp with time zone;

@@ -3,12 +3,15 @@
 import * as React from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Logout01Icon } from "@hugeicons/core-free-icons";
+import useSWR from "swr";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/app-shell";
 import { useAuthDialog } from "@/components/auth-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { authClient } from "@/lib/auth-client";
 import { api, refreshAll, useMe } from "@/lib/client";
 
@@ -73,6 +76,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
+      {user.isAdmin && <RelaunchPanel />}
       <InstagramForm key={user.instagram ?? ""} initial={user.instagram ?? ""} onSaved={() => mutate()} />
       <PasswordForm hasPassword={user.hasPassword} onSaved={() => mutate()} />
 
@@ -179,5 +183,107 @@ function PasswordForm({ hasPassword, onSaved }: { hasPassword: boolean; onSaved:
         {hasPassword ? "Изменить" : "Задать пароль"}
       </Button>
     </form>
+  );
+}
+
+type Progress = { total: number; sent: number; pending: number };
+
+// One sitting sends this many at most: the mail service's free plan allows 100 a day, and the
+// login links people click must fit in the same allowance.
+const PER_SITTING = 45;
+
+/** Admin only: the one-time "we moved" letter to everyone carried over from the old app. */
+function RelaunchPanel() {
+  const { data, mutate } = useSWR<Progress>("/api/admin/relaunch", (url: string) => api<Progress>(url));
+  const [busy, setBusy] = React.useState<"test" | "send" | null>(null);
+  const [confirming, setConfirming] = React.useState(false);
+
+  async function sendTest() {
+    setBusy("test");
+    try {
+      await api("/api/admin/relaunch", { method: "POST", json: { mode: "test" } });
+      toast.success("Тестовое письмо отправлено тебе");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Не получилось отправить.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function sendBatch() {
+    setConfirming(false);
+    setBusy("send");
+    let sent = 0;
+    try {
+      while (sent < PER_SITTING) {
+        const result = await api<Progress & { sentNow: number }>("/api/admin/relaunch", {
+          method: "POST",
+          json: { mode: "send" },
+        });
+        sent += result.sentNow;
+        await mutate(result, { revalidate: false });
+        if (result.sentNow === 0 || result.pending === 0) break;
+      }
+      toast.success(sent > 0 ? `Отправлено писем: ${sent}` : "Все уже получили письмо");
+    } catch (error) {
+      await mutate();
+      toast.error(error instanceof Error ? error.message : "Отправка прервалась. Уже отправленные не повторятся.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const next = data ? Math.min(PER_SITTING, data.pending) : 0;
+
+  return (
+    <section className={`${sheet} grid gap-3 [--i:2]`}>
+      <div>
+        <h2 className="text-(length:--plush-text-xl) font-(--plush-weight-semi)">Письмо о переезде</h2>
+        <p className="mt-0.5 text-(length:--plush-text-sm) text-(--plush-ink-2)">
+          Для тех, кто пришёл из «Кнопки желаний»: новое имя, новый адрес и личная ссылка для входа.
+        </p>
+      </div>
+      <div className="flex items-center gap-3 rounded-(--plush-radius-row) bg-(--plush-panel) px-4 py-3">
+        <Progress value={data?.sent ?? 0} max={Math.max(1, data?.total ?? 1)} className="flex-1" aria-label="Отправлено писем" />
+        <span className="text-(length:--plush-text-md) font-(--plush-weight-semi) tabular-nums">
+          {data ? `${data.sent} из ${data.total}` : "…"}
+        </span>
+      </div>
+      <p className="text-(length:--plush-text-sm) text-(--plush-ink-2)">
+        Как выглядит письмо:{" "}
+        <a className="plush-focus-ring rounded-sm font-(--plush-weight-semi) text-(--plush-ink) underline underline-offset-4" href="/api/admin/relaunch?preview=wishes" target="_blank" rel="noreferrer">
+          тем, у кого есть желания
+        </a>
+        {" · "}
+        <a className="plush-focus-ring rounded-sm font-(--plush-weight-semi) text-(--plush-ink) underline underline-offset-4" href="/api/admin/relaunch?preview=empty" target="_blank" rel="noreferrer">
+          остальным
+        </a>
+      </p>
+      <Button variant="outline" size="sm" onClick={sendTest} disabled={busy !== null} aria-busy={busy === "test"}>
+        Отправить тест себе
+      </Button>
+      <Button size="sm" onClick={() => setConfirming(true)} disabled={busy !== null || !data || data.pending === 0} aria-busy={busy === "send"}>
+        {busy === "send" ? "Отправляем…" : data?.pending === 0 ? "Все получили письмо" : `Отправить следующим ${next}`}
+      </Button>
+
+      <Dialog open={confirming} onOpenChange={setConfirming}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Отправить {next} писем?</DialogTitle>
+            <DialogDescription>
+              Письма уйдут настоящим людям, отменить отправку нельзя. Сначала проверь тестовое письмо у себя в почте.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3">
+            <Button variant="secondary" size="sm" className="flex-1" onClick={() => setConfirming(false)}>
+              Не сейчас
+            </Button>
+            <Button size="sm" className="flex-1" onClick={sendBatch}>
+              Отправить
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </section>
   );
 }

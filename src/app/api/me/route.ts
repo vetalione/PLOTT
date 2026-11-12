@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { fail, getViewer, json, normalizeInstagram } from "@/lib/api";
 import { emailEnabled } from "@/lib/email";
+import { getAdmin } from "@/lib/relaunch";
 
 // Who is looking, plus what the deployment can do (email-based flows need a mail provider).
 export async function GET(request: Request) {
@@ -27,6 +28,7 @@ export async function GET(request: Request) {
       email: viewer.isGuest ? null : row?.email ?? null,
       instagram: row?.instagram ?? null,
       hasPassword: credential.length > 0,
+      isAdmin: Boolean(await getAdmin(request)),
     },
     features,
   });

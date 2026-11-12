@@ -2,10 +2,10 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Кнопка Желаний",
+  title: "PLOTT — кнопка желаний",
   description: "Загадай желание, нажми на кнопку и поддержи желания других.",
-  applicationName: "Кнопка Желаний",
-  appleWebApp: { capable: true, title: "Кнопка Желаний", statusBarStyle: "default" },
+  applicationName: "PLOTT",
+  appleWebApp: { capable: true, title: "PLOTT — кнопка желаний", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

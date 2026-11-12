@@ -11,6 +11,7 @@ export type Me = {
     email: string | null;
     instagram: string | null;
     hasPassword: boolean;
+    isAdmin: boolean;
   } | null;
   features: { email: boolean };
 };

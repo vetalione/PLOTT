@@ -36,7 +36,7 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
-        subject: "Кнопка Желаний | Сброс пароля",
+        subject: "PLOTT: сброс пароля",
         ...linkEmail({
           intro: "Вы запросили сброс пароля. Нажмите кнопку ниже, чтобы задать новый.",
           action: "Задать новый пароль",
@@ -66,7 +66,7 @@ export const auth = betterAuth({
       sendMagicLink: async ({ email, url }) => {
         await sendEmail({
           to: email,
-          subject: "Кнопка Желаний | Ссылка для входа",
+          subject: "PLOTT: ссылка для входа",
           ...linkEmail({
             intro: "Вы запросили волшебную ссылку для входа в свою учётную запись.",
             action: "Войти",

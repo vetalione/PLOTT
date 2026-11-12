@@ -75,9 +75,9 @@ export default function WishPage() {
   return (
     <main className="flex flex-1 flex-col">
       <header className="rise flex items-center justify-between pt-2">
-        <span className="flex items-center gap-2 text-(length:--plush-text-xl) font-(--plush-weight-semi) tracking-[-0.01em]">
+        <span className="flex items-center gap-2 text-(length:--plush-text-2xl) font-(--plush-weight-semi) tracking-[0.04em]">
           <LogoMark className="size-6" />
-          Кнопка желаний
+          PLOTT
         </span>
         {isGuest && me && (
           <Button variant="secondary" size="xs" onClick={() => auth.open({ mode: "login" })}>
