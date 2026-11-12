@@ -19,6 +19,7 @@ export async function PATCH(request: Request, { params }: Ctx) {
   if (body?.status === "done") Object.assign(patch, { status: "done", doneAt: new Date() });
   if (body?.status === "wished") Object.assign(patch, { status: "wished", doneAt: null });
   if (typeof body?.isPublic === "boolean") patch.isPublic = body.isPublic;
+  if (typeof body?.showAuthor === "boolean") patch.showAuthor = body.showAuthor;
   if (Object.keys(patch).length === 0) return fail(400, "Нечего менять.");
 
   const [row] = await db

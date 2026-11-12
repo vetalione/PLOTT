@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { getViewer, json } from "@/lib/api";
 import { toDTO } from "@/lib/wishes";
@@ -15,8 +15,8 @@ export async function GET(request: Request) {
   const rows = await db
     .select({ wish: schema.wish, instagram: schema.user.instagram })
     .from(schema.wish)
-    .innerJoin(schema.user, eq(schema.user.id, schema.wish.userId))
-    .where(and(eq(schema.wish.isPublic, true)))
+    .leftJoin(schema.user, eq(schema.user.id, schema.wish.userId))
+    .where(eq(schema.wish.isPublic, true))
     .orderBy(
       ...(sort === "top"
         ? [desc(schema.wish.clapsCount), desc(schema.wish.createdAt)]

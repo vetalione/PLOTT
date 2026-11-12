@@ -83,9 +83,12 @@ export const wish = pgTable(
   "wish",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    // Null for wishes carried over from the old app whose author never registered.
+    userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+    // Groups ownerless wishes that came from one person, so they still share a colour in the feed.
+    toneKey: text("tone_key"),
+    // Whether a public wish is signed with the author's Instagram handle.
+    showAuthor: boolean("show_author").notNull().default(true),
     text: text("text").notNull(),
     dueDate: date("due_date", { mode: "string" }),
     isPublic: boolean("is_public").notNull().default(true),

@@ -3,11 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Calendar03Icon, ViewIcon, ViewOffSlashIcon } from "@hugeicons/core-free-icons";
+import { Calendar03Icon, InstagramIcon, ViewIcon, ViewOffSlashIcon } from "@hugeicons/core-free-icons";
 import { cn } from "cn";
 import { toast } from "sonner";
 import { useAuthDialog } from "@/components/auth-dialog";
 import { DueDateDialog, formatDue } from "@/components/due-date";
+import { LogoMark } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { WishButton, type WishButtonState } from "@/components/wish-button";
@@ -24,6 +25,7 @@ export default function WishPage() {
   const [text, setText] = React.useState("");
   const [dueDate, setDueDate] = React.useState<string | null>(null);
   const [isPublic, setPublic] = React.useState(true);
+  const [showAuthor, setShowAuthor] = React.useState(true);
   const [state, setState] = React.useState<WishButtonState>("idle");
   const [dateOpen, setDateOpen] = React.useState(false);
   // The calendar reads today's date, so it is only rendered once someone asks for it (never in the prerender).
@@ -32,6 +34,7 @@ export default function WishPage() {
   const textarea = React.useRef<HTMLTextAreaElement>(null);
 
   const isGuest = !me?.user || me.user.isGuest;
+  const instagram = me?.user?.instagram ?? null;
 
   async function makeWish() {
     const wish = text.trim();
@@ -49,7 +52,7 @@ export default function WishPage() {
         if (error) throw new Error("Не удалось начать сессию. Попробуй ещё раз.");
       }
       await Promise.all([
-        api("/api/wishes", { method: "POST", json: { text: wish, dueDate, isPublic } }),
+        api("/api/wishes", { method: "POST", json: { text: wish, dueDate, isPublic, showAuthor } }),
         new Promise((resolve) => window.setTimeout(resolve, RITUAL_MS)),
       ]);
       setState("done");
@@ -72,7 +75,8 @@ export default function WishPage() {
   return (
     <main className="flex flex-1 flex-col">
       <header className="rise flex items-center justify-between pt-2">
-        <span className="text-(length:--plush-text-xl) font-(--plush-weight-semi) tracking-[-0.01em]">
+        <span className="flex items-center gap-2 text-(length:--plush-text-xl) font-(--plush-weight-semi) tracking-[-0.01em]">
+          <LogoMark className="size-6" />
           Кнопка желаний
         </span>
         {isGuest && me && (
@@ -138,6 +142,14 @@ export default function WishPage() {
                   {isPublic ? "Видно всем" : "Только мне"}
                   <Switch size="sm" checked={isPublic} onCheckedChange={setPublic} disabled={state !== "idle"} aria-label="Сделать видимым для всех" />
                 </label>
+                {/* Signing is a choice: without it a public wish shows only the author's colour. */}
+                {isPublic && instagram && (
+                  <label className="flex h-(--plush-h-chip) max-w-full cursor-pointer items-center gap-2 rounded-full bg-(--plush-fill) py-1 pr-2 pl-3 text-(length:--plush-text-md) font-(--plush-weight-semi)">
+                    <HugeiconsIcon icon={InstagramIcon} size={18} strokeWidth={2} aria-hidden className="shrink-0" />
+                    <span className="truncate">{showAuthor ? `@${instagram}` : "Анонимно"}</span>
+                    <Switch size="sm" checked={showAuthor} onCheckedChange={setShowAuthor} disabled={state !== "idle"} aria-label="Подписать желание моим Instagram" />
+                  </label>
+                )}
               </div>
             </div>
           </section>

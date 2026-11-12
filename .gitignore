@@ -40,3 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 !.env.example
+
+# data exports and generated import SQL (personal data)
+/data/
+*.csv
+import*.sql

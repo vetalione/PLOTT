@@ -4,8 +4,8 @@ import { getViewer, json } from "@/lib/api";
 
 const DAYS = 30;
 
-// Community totals, a 30-day daily series (wished by creation day, done by completion day)
-// and the viewer's own numbers.
+// Community totals, two series (daily for the last 30 days, monthly for all time; wished by creation
+// date, done by completion date) and the viewer's own numbers.
 export async function GET(request: Request) {
   const viewer = await getViewer(request);
   const since = new Date(Date.now() - (DAYS - 1) * 86400_000);
@@ -15,7 +15,10 @@ export async function GET(request: Request) {
   const day = (col: typeof wish.createdAt | typeof wish.doneAt) =>
     sql<string>`to_char(${col} at time zone 'UTC', 'YYYY-MM-DD')`;
 
-  const [totals, wishedByDay, doneByDay, mine] = await Promise.all([
+  const month = (col: typeof wish.createdAt | typeof wish.doneAt) =>
+    sql<string>`to_char(${col} at time zone 'UTC', 'YYYY-MM')`;
+
+  const [totals, wishedByDay, doneByDay, wishedByMonth, doneByMonth, mine] = await Promise.all([
     db
       .select({
         wishes: count(),
@@ -33,6 +36,12 @@ export async function GET(request: Request) {
       .from(wish)
       .where(and(isNotNull(wish.doneAt), gte(wish.doneAt, since)))
       .groupBy(day(wish.doneAt)),
+    db.select({ month: month(wish.createdAt), n: count() }).from(wish).groupBy(month(wish.createdAt)),
+    db
+      .select({ month: month(wish.doneAt), n: count() })
+      .from(wish)
+      .where(isNotNull(wish.doneAt))
+      .groupBy(month(wish.doneAt)),
     viewer
       ? db
           .select({
@@ -52,11 +61,26 @@ export async function GET(request: Request) {
     return { day: key, wished: wished.get(key) ?? 0, done: done.get(key) ?? 0 };
   });
 
+  // Every month from the first wish to now, so quiet stretches show as gaps rather than vanish.
+  const wishedM = new Map(wishedByMonth.map((r) => [r.month, r.n]));
+  const doneM = new Map(doneByMonth.map((r) => [r.month, r.n]));
+  const now = new Date();
+  const first = [...wishedM.keys()].sort()[0] ?? now.toISOString().slice(0, 7);
+  const months: { month: string; wished: number; done: number }[] = [];
+  for (
+    let cursor = new Date(Date.UTC(Number(first.slice(0, 4)), Number(first.slice(5, 7)) - 1, 1));
+    cursor <= now && months.length < 240;
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1)
+  ) {
+    const key = cursor.toISOString().slice(0, 7);
+    months.push({ month: key, wished: wishedM.get(key) ?? 0, done: doneM.get(key) ?? 0 });
+  }
+
   const shape = (r: { wishes: number; done: number; claps: string | null } | undefined) => ({
     wishes: r?.wishes ?? 0,
     done: r?.done ?? 0,
     claps: Number(r?.claps ?? 0),
   });
 
-  return json({ totals: shape(totals[0]), mine: mine ? shape(mine[0]) : null, series });
+  return json({ totals: shape(totals[0]), mine: mine ? shape(mine[0]) : null, series, months });
 }

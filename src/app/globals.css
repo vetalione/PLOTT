@@ -299,26 +299,37 @@ body {
 }
 
 .wish-glyph {
-  width: 42%;
-  height: 42%;
+  width: 50%;
+  height: 50%;
   overflow: visible;
 }
 
 .wish-glyph path {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
   transition: opacity 220ms ease;
 }
 
+.wish-glyph .stem,
 .wish-glyph .arc {
-  transform-origin: 12px 12px;
+  fill: currentColor;
 }
 
-.wish-stage[data-state="charging"] .wish-glyph .arc {
-  animation: wish-orbit 0.8s linear infinite;
+/* the arcs of the mark wind around this point of the artwork */
+.wish-glyph .arc {
+  transform-origin: 950px 1094px;
+}
+
+@keyframes wish-unwind {
+  to {
+    rotate: -360deg;
+  }
+}
+
+.wish-stage[data-state="charging"] .wish-glyph .arc-outer {
+  animation: wish-orbit 1.5s linear infinite;
+}
+
+.wish-stage[data-state="charging"] .wish-glyph .arc-inner {
+  animation: wish-unwind 0.9s linear infinite;
 }
 
 .wish-stage[data-state="charging"] .wish-glyph .stem,
@@ -328,10 +339,37 @@ body {
   opacity: 0;
 }
 
+.wish-glyph .check {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 200;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .wish-stage[data-state="done"] .wish-glyph .check {
-  stroke-width: 2.6;
   stroke-dasharray: 1;
   animation: wish-draw 420ms 160ms ease-out both;
+}
+
+/* ── Author tone: one hue per author, same lightness and chroma for all, so any mix sits together ── */
+
+.tone {
+  --tone: oklch(0.8 0.13 var(--hue));
+  --tone-ink: oklch(0.52 0.13 var(--hue));
+  box-shadow:
+    0 0 0 1.5px color-mix(in oklab, var(--tone) 60%, transparent),
+    0 10px 26px -14px color-mix(in oklab, var(--tone) 90%, transparent),
+    var(--plush-card-shadow);
+}
+
+.tone-dot {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, oklch(0.92 0.09 var(--hue)), var(--tone) 70%);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tone) 28%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

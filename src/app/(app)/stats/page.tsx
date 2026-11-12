@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowDataTransferVerticalIcon } from "@hugeicons/core-free-icons";
 import { PageHeader } from "@/components/app-shell";
-import { DayChart } from "@/components/day-chart";
+import { TimeChart } from "@/components/time-chart";
 import { Button } from "@/components/ui/button";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { plural, useStats } from "@/lib/client";
@@ -14,6 +16,7 @@ const compact = (n: number) =>
 export default function StatsPage() {
   const { data } = useStats();
   const [series, setSeries] = React.useState<"wished" | "done">("wished");
+  const [range, setRange] = React.useState<"all" | "30d">("all");
   const mine = data?.mine;
   const hasWishes = Boolean(mine && mine.wishes > 0);
 
@@ -90,9 +93,26 @@ export default function StatsPage() {
           ))}
         </div>
         {data ? (
-          <DayChart
+          <TimeChart
             label={series === "wished" ? "Загаданные желания" : "Исполненные желания"}
-            points={data.series.map((d) => ({ day: d.day, value: d[series] }))}
+            unit={range === "all" ? "month" : "day"}
+            rangeLabel={range === "all" ? "за всё время" : "за 30 дней"}
+            aside={
+              <button
+                type="button"
+                onClick={() => setRange(range === "all" ? "30d" : "all")}
+                aria-label={`Период: ${range === "all" ? "всё время" : "30 дней"}. Переключить`}
+                className="plush-focus-ring flex h-8 items-center gap-1 rounded-full bg-(--plush-fill) px-3 text-(length:--plush-text-sm) font-(--plush-weight-semi) text-(--plush-ink) [transition:background-color_var(--plush-dur-fast)_var(--plush-ease-fade),scale_var(--plush-dur-spring)_var(--plush-ease-spring)] hover:bg-(--plush-fill-strong) active:scale-(--plush-press-scale-pill)"
+              >
+                {range === "all" ? "за всё время" : "за 30 дней"}
+                <HugeiconsIcon icon={ArrowDataTransferVerticalIcon} size={14} strokeWidth={2} aria-hidden />
+              </button>
+            }
+            points={
+              range === "all"
+                ? data.months.map((m) => ({ key: m.month, value: m[series] }))
+                : data.series.map((d) => ({ key: d.day, value: d[series] }))
+            }
           />
         ) : (
           <div className="h-[244px] animate-pulse rounded-(--plush-radius-row) bg-(--plush-panel)" />

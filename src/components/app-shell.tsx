@@ -9,18 +9,10 @@ import { cn } from "cn";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthDialogProvider } from "./auth-dialog";
+import { LogoMark } from "./logo";
 
-// The app's own mark: the power symbol from the button.
-const PowerGlyph: IconSvgElement = [
-  ["path", { d: "M12 3.2v8.3", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", key: "0" }],
-  [
-    "path",
-    { d: "M6.6 6.9a7.6 7.6 0 1 0 10.8 0", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", key: "1" },
-  ],
-];
-
-const NAV = [
-  { href: "/", label: "Кнопка", icon: PowerGlyph },
+const NAV: { href: string; label: string; icon: IconSvgElement | null }[] = [
+  { href: "/", label: "Кнопка", icon: null }, // the brand mark
   { href: "/wishes", label: "Желания", icon: LeftToRightListBulletIcon },
   { href: "/stats", label: "Статистика", icon: Analytics01Icon },
   { href: "/profile", label: "Профиль", icon: UserIcon },
@@ -70,7 +62,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       : "text-(--plush-ink-2) hover:bg-(--plush-fill) hover:text-(--plush-ink)",
                   )}
                 >
-                  <HugeiconsIcon icon={item.icon} size={22} strokeWidth={1.9} aria-hidden className="shrink-0" />
+                  {item.icon ? (
+                    <HugeiconsIcon icon={item.icon} size={22} strokeWidth={1.9} aria-hidden className="shrink-0" />
+                  ) : (
+                    <LogoMark className="size-[21px] shrink-0" />
+                  )}
                   <span
                     className={cn(
                       "grid overflow-hidden [transition:grid-template-columns_var(--plush-dur-spring)_var(--plush-ease-spring),opacity_var(--plush-dur-fade)_var(--plush-ease-fade)]",

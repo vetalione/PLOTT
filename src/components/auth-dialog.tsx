@@ -74,7 +74,14 @@ export function AuthDialogProvider({ children }: { children: React.ReactNode }) 
           name: email.trim().split("@")[0] || "Друг",
           instagram: handle || undefined,
         });
-        if (error) return setError(describe(error));
+        if (error) {
+          // People who came over from the old app have an account but no password yet: a link gets them in.
+          if (error.code?.startsWith("USER_ALREADY_EXISTS") && emailFlows) {
+            setMode("link");
+            return setError("Этот email уже зарегистрирован. Отправим ссылку для входа — пароль не нужен.");
+          }
+          return setError(describe(error));
+        }
         await refreshAll();
         setOpen(false);
         toast.success("Добро пожаловать! Желания сохранены.");

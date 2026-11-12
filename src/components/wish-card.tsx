@@ -9,6 +9,7 @@ import {
   Calendar03Icon,
   Clapping01Icon,
   Delete02Icon,
+  InstagramIcon,
   Tick02Icon,
   ViewIcon,
   ViewOffSlashIcon,
@@ -42,8 +43,41 @@ function DoneBadge() {
   );
 }
 
+// `tone` (globals.css) rings the card in its author's colour and gives it a soft glow of the same hue.
 const card =
-  "rise flex items-center gap-3 rounded-(--plush-radius-card) bg-(--plush-surface) py-4 pr-4 pl-(--plush-pad) shadow-(--plush-card-shadow)";
+  "tone rise flex items-center gap-3 rounded-(--plush-radius-card) bg-(--plush-surface) py-4 pr-4 pl-(--plush-pad)";
+
+const toneStyle = (wish: WishDTO, index: number) =>
+  ({ "--i": Math.min(index, 8), "--hue": wish.hue }) as React.CSSProperties;
+
+/** Wishes are usually a line or two; the rare essay folds until someone asks for all of it. */
+function WishText({ text, muted }: { text: string; muted?: boolean }) {
+  const long = text.length > 220;
+  const [open, setOpen] = React.useState(false);
+  return (
+    <>
+      <p
+        className={cn(
+          "text-(length:--plush-text-xl) leading-snug font-(--plush-weight-semi) whitespace-pre-line wrap-anywhere",
+          long && !open && "line-clamp-5",
+          muted && "text-(--plush-ink-2)",
+        )}
+      >
+        {text.trim()}
+      </p>
+      {long && (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="plush-focus-ring mt-1 rounded-sm text-(length:--plush-text-sm) font-(--plush-weight-semi) text-(--plush-ink-2) hover:text-(--plush-ink)"
+        >
+          {open ? "Свернуть" : "Показать полностью"}
+        </button>
+      )}
+    </>
+  );
+}
 
 /** A wish in the public feed: the text, who and when, and the applause button. */
 export function PublicWishCard({
@@ -59,23 +93,28 @@ export function PublicWishCard({
   const done = wish.status === "done";
 
   return (
-    <li className={card} style={{ "--i": Math.min(index, 8) } as React.CSSProperties}>
+    <li className={card} style={toneStyle(wish, index)}>
       <div className="min-w-0 flex-1">
-        <p className="text-(length:--plush-text-xl) leading-snug font-(--plush-weight-semi) wrap-anywhere">{wish.text}</p>
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-(length:--plush-text-xs) text-(--plush-ink-3)">
-          {done && <DoneBadge />}
-          <Meta>{shortDate(wish.createdAt)}</Meta>
-          {wish.instagram && (
+        <WishText text={wish.text} />
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-(length:--plush-text-xs) text-(--plush-ink-3)">
+          <span className="tone-dot" title="Цвет автора: у всех желаний одного человека он одинаковый" aria-hidden />
+          {wish.instagram ? (
             <a
               href={`https://instagram.com/${wish.instagram}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="plush-focus-ring rounded-sm font-(--plush-weight-semi) text-(--plush-ink-2) hover:text-(--plush-ink)"
+              aria-label={`Instagram автора: ${wish.instagram}`}
+              className="plush-focus-ring inline-flex h-6 max-w-full items-center gap-1 rounded-full bg-(--plush-fill) pr-2.5 pl-1.5 font-(--plush-weight-semi) text-(--plush-ink) [transition:background-color_var(--plush-dur-fast)_var(--plush-ease-fade),scale_var(--plush-dur-spring)_var(--plush-ease-spring)] hover:bg-(--plush-fill-strong) active:scale-(--plush-press-scale-pill)"
             >
-              @{wish.instagram}
+              <HugeiconsIcon icon={InstagramIcon} size={14} strokeWidth={2} aria-hidden className="shrink-0" />
+              <span className="truncate">{wish.instagram}</span>
             </a>
+          ) : (
+            wish.mine && <Meta>твоё</Meta>
           )}
-          {wish.mine && <Meta>твоё</Meta>}
+          <Meta>{shortDate(wish.createdAt)}</Meta>
+          {wish.dueDate && !done && <Meta icon={Calendar03Icon}>до {formatDue(wish.dueDate)}</Meta>}
+          {done && <DoneBadge />}
         </div>
       </div>
 
@@ -121,11 +160,9 @@ export function MyWishCard({
   const done = wish.status === "done";
 
   return (
-    <li className={card} style={{ "--i": Math.min(index, 8) } as React.CSSProperties}>
+    <li className={card} style={toneStyle(wish, index)}>
       <div className="min-w-0 flex-1">
-        <p className={cn("text-(length:--plush-text-xl) leading-snug font-(--plush-weight-semi) wrap-anywhere", done && "text-(--plush-ink-2)")}>
-          {wish.text}
-        </p>
+        <WishText text={wish.text} muted={done} />
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-(length:--plush-text-xs) text-(--plush-ink-3)">
           {done ? (
             <>

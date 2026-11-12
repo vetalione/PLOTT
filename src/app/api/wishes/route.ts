@@ -46,7 +46,13 @@ export async function POST(request: Request) {
 
   const [row] = await db
     .insert(schema.wish)
-    .values({ userId: viewer.id, text, dueDate, isPublic: body?.isPublic !== false })
+    .values({
+      userId: viewer.id,
+      text,
+      dueDate,
+      isPublic: body?.isPublic !== false,
+      showAuthor: body?.showAuthor !== false,
+    })
     .returning();
 
   const [wish] = await toDTO([row], viewer.id);

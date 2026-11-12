@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Confetti, type ConfettiHandle } from "./confetti";
+import { LOGO_PATHS, LOGO_VIEWBOX } from "./logo";
 
 export type WishButtonState = "idle" | "charging" | "done";
 
@@ -118,10 +119,11 @@ export function WishButton({
           aria-label={label}
           aria-busy={state === "charging"}
         >
-          <svg className="wish-glyph" viewBox="0 0 24 24" aria-hidden>
-            <path className="stem" d="M12 3.2v8.3" />
-            <path className="arc" d="M6.6 6.9a7.6 7.6 0 1 0 10.8 0" />
-            <path className="check" pathLength={1} d="M5.5 12.6l4.4 4.4 8.6-9.4" />
+          <svg className="wish-glyph" viewBox={LOGO_VIEWBOX} aria-hidden>
+            <path className="stem" d={LOGO_PATHS.stem} />
+            <path className="arc arc-inner" d={LOGO_PATHS.inner} />
+            <path className="arc arc-outer" d={LOGO_PATHS.outer} />
+            <path className="check" pathLength={1} d="M470 1100l350 350 700-760" />
           </svg>
         </button>
       </div>

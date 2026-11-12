@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import { db, schema } from "@/db";
 
@@ -13,7 +14,18 @@ export type WishDTO = {
   mine: boolean;
   clapped: boolean;
   instagram: string | null;
+  /** 0–359: the author's colour. Same author, same hue; it says nothing else about who they are. */
+  hue: number;
 };
+
+/**
+ * A stable hue per author. It is a one-way hash, so the feed can show that two wishes share an
+ * author without ever sending the author's id to other people.
+ */
+export function authorHue(row: { id: string; userId: string | null; toneKey: string | null }) {
+  const key = row.userId ?? row.toneKey ?? row.id;
+  return createHash("sha256").update(`plott-tone:${key}`).digest().readUInt16BE(0) % 360;
+}
 
 type Row = typeof schema.wish.$inferSelect & { instagram?: string | null };
 
@@ -43,9 +55,10 @@ export async function toDTO(rows: Row[], viewerId: string | null): Promise<WishD
     doneAt: r.doneAt ? r.doneAt.toISOString() : null,
     createdAt: r.createdAt.toISOString(),
     clapsCount: r.clapsCount,
-    mine: r.userId === viewerId,
+    mine: viewerId !== null && r.userId === viewerId,
     clapped: clapped.has(r.id),
-    instagram: r.instagram ?? null,
+    instagram: r.isPublic && r.showAuthor ? (r.instagram ?? null) : null,
+    hue: authorHue(r),
   }));
 }
 

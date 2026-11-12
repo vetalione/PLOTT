@@ -1,0 +1,22 @@
+// The Wish Button mark, traced from the brand logo: a stem and two arcs of a spiral.
+// Coordinates are in the traced artwork's own space; LOGO_VIEWBOX frames it as a square.
+export const LOGO_VIEWBOX = "-30 40 2000 2000";
+// The point the arcs wind around (used as the pivot when they spin).
+export const LOGO_CENTER = { x: 950, y: 1094 };
+
+export const LOGO_PATHS = {
+  stem: "M 887.2 598.7 L 887.5 1157.5 960 1157.5 L 1032.5 1157.5 1032.7 598.7 L 1033 40 960 40 L 886.9 40 887.2 598.7",
+  inner: "M 1134 583.3 L 1134 669.7 1146.3 679.7 C 1335.7 833.7 1396.5 1112.5 1281 1297.3 C 1157.5 1494.9 894.9 1537.5 715.9 1388.9 C 560.5 1259.9 589.3 1013.2 770.5 920.9 L 785.5 913.2 785.7 837.4 C 785.9 794.3 785.6 761.2 785.1 760.7 C 783.7 759.3 744.1 772.9 724.8 781.5 C 514.4 874.7 415.7 1115.1 499.4 1330 C 593.6 1571.4 907.1 1691.3 1160.5 1582.6 C 1358.6 1497.7 1484.3 1306.5 1484.4 1090 C 1484.5 842.9 1352.9 617.7 1139.7 500.1 L 1134 496.9 1134 583.3",
+  outer: "M 1134 247.9 C 1134 321.9 1134 321.9 1136.7 322.5 C 1465.6 397.9 1712.9 674.4 1750.4 1008.5 C 1803.6 1481.7 1434.2 1894.8 958.5 1894.3 C 669.4 1894 412.9 1745 268.2 1493.5 C 97.6 1196.7 197.6 821.3 494 646 C 574.8 598.3 677.5 566.8 767.5 562.4 C 774.1 562.1 780.9 561.6 782.7 561.4 L 786 560.9 786 488.3 L 786 415.7 772.2 416.3 C 393.7 435.2 85.7 724.1 44.5 1099 C 41 1130.9 40.5 1142.4 40.5 1183.5 C 40.5 1225.8 41 1235.7 45 1272.5 C 60.3 1410.9 116 1545.1 208.8 1667 C 567.1 2137.5 1259.7 2167.7 1657.5 1730 C 1869.6 1496.5 1950.2 1170.5 1871.4 864.2 C 1782.4 518.1 1500.9 249.3 1151.7 177 C 1143.5 175.3 1136.2 174 1135.4 174 C 1134.1 174 1134 183.8 1134 247.9",
+};
+
+export function LogoMark({ className, title }: { className?: string; title?: string }) {
+  return (
+    <svg viewBox={LOGO_VIEWBOX} className={className} fill="currentColor" role={title ? "img" : undefined} aria-hidden={title ? undefined : true}>
+      {title && <title>{title}</title>}
+      <path d={LOGO_PATHS.stem} />
+      <path d={LOGO_PATHS.inner} />
+      <path d={LOGO_PATHS.outer} />
+    </svg>
+  );
+}

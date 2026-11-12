@@ -6,7 +6,8 @@ import { ru } from "date-fns/locale";
 import { cn } from "cn";
 import { plural } from "@/lib/client";
 
-type Point = { day: string; value: number };
+type Point = { key: string; value: number };
+type Unit = "day" | "month";
 
 const niceMax = (max: number) => {
   if (max <= 4) return 4;
@@ -15,14 +16,32 @@ const niceMax = (max: number) => {
   return step * pow;
 };
 
-const dayLabel = (iso: string) => format(parseISO(iso), "d MMM", { locale: ru }).replace(".", "");
-const dayFull = (iso: string) => format(parseISO(iso), "d MMMM, EEEEEE", { locale: ru });
+// Keys are "YYYY-MM-DD" for days and "YYYY-MM" for months.
+const toDate = (key: string) => parseISO(key.length === 7 ? `${key}-01` : key);
+const axisLabel = (key: string, unit: Unit) =>
+  format(toDate(key), unit === "day" ? "d MMM" : "LLL yyyy", { locale: ru }).replace(".", "");
+const fullLabel = (key: string, unit: Unit) =>
+  format(toDate(key), unit === "day" ? "d MMMM, EEEEEE" : "LLLL yyyy", { locale: ru });
 
 /**
- * Daily counts as thin columns on one baseline. One series, so no legend: the card title names it.
- * The whole slot of a day is its hover target; arrow keys walk the days; a hidden table mirrors the data.
+ * Counts per day or per month as thin columns on one baseline. One series, so no legend: the control
+ * above the chart names it. The whole slot of a period is its hover target; arrow keys walk the
+ * periods; a hidden table mirrors the data.
  */
-export function DayChart({ points, label }: { points: Point[]; label: string }) {
+export function TimeChart({
+  points,
+  label,
+  unit,
+  rangeLabel,
+  aside,
+}: {
+  points: Point[];
+  label: string;
+  unit: Unit;
+  rangeLabel: string;
+  /** Shown beside the total while no column is picked, e.g. a control that switches the range. */
+  aside?: React.ReactNode;
+}) {
   const [active, setActive] = React.useState<number | null>(null);
   const top = niceMax(Math.max(0, ...points.map((p) => p.value)));
   const ticks = [top, top / 2, 0];
@@ -38,18 +57,18 @@ export function DayChart({ points, label }: { points: Point[]; label: string }) 
 
   return (
     <figure className="m-0">
-      <div className="flex h-9 items-baseline justify-between gap-3" aria-live="polite">
+      <div className="flex h-9 items-center justify-between gap-3" aria-live="polite">
         {current ? (
           <>
             <span className="text-(length:--plush-text-2xl) font-(--plush-weight-semi) tabular-nums">{wishes(current.value)}</span>
-            <span className="text-(length:--plush-text-sm) text-(--plush-ink-2)">{dayFull(current.day)}</span>
+            <span className="text-(length:--plush-text-sm) text-(--plush-ink-2)">{fullLabel(current.key, unit)}</span>
           </>
         ) : (
           <>
             <span className="text-(length:--plush-text-2xl) font-(--plush-weight-semi) tabular-nums">
               {wishes(points.reduce((sum, p) => sum + p.value, 0))}
             </span>
-            <span className="text-(length:--plush-text-sm) text-(--plush-ink-2)">за 30 дней</span>
+            {aside ?? <span className="text-(length:--plush-text-sm) text-(--plush-ink-2)">{rangeLabel}</span>}
           </>
         )}
       </div>
@@ -66,7 +85,7 @@ export function DayChart({ points, label }: { points: Point[]; label: string }) 
         <div
           role="img"
           tabIndex={0}
-          aria-label={`${label}: по дням за последние 30 дней. Стрелки влево и вправо переключают дни.`}
+          aria-label={`${label}, ${rangeLabel}, ${unit === "day" ? "по дням" : "по месяцам"}. Стрелки влево и вправо переключают столбцы.`}
           className="plush-focus-ring relative h-40 rounded-md outline-offset-4"
           onKeyDown={onKeyDown}
           onBlur={() => setActive(null)}
@@ -82,7 +101,7 @@ export function DayChart({ points, label }: { points: Point[]; label: string }) 
           <div className="absolute inset-0 flex items-end">
             {points.map((point, i) => (
               <div
-                key={point.day}
+                key={point.key}
                 className="flex h-full min-w-0 flex-1 items-end justify-center"
                 onPointerEnter={() => setActive(i)}
                 onPointerDown={() => setActive(i)}
@@ -90,7 +109,7 @@ export function DayChart({ points, label }: { points: Point[]; label: string }) 
                 <div
                   className={cn(
                     "w-full max-w-6 rounded-t-[4px] bg-[#16a35c] [transition:height_var(--plush-dur-soft)_var(--plush-ease-soft),opacity_var(--plush-dur-fast)_var(--plush-ease-fade)]",
-                    "mx-px",
+                    points.length > 40 ? "mx-[0.5px]" : "mx-px",
                     active !== null && active !== i && "opacity-35",
                   )}
                   style={{ height: `${(point.value / top) * 100}%` }}
@@ -102,24 +121,26 @@ export function DayChart({ points, label }: { points: Point[]; label: string }) 
 
         <div />
         <div className="mt-2 flex justify-between text-[11px] text-(--plush-ink-3)" aria-hidden>
-          <span>{dayLabel(points[0].day)}</span>
-          <span>{dayLabel(points[Math.floor(points.length / 2)].day)}</span>
-          <span>{dayLabel(points[points.length - 1].day)}</span>
+          <span>{axisLabel(points[0].key, unit)}</span>
+          {points.length > 2 && <span>{axisLabel(points[Math.floor(points.length / 2)].key, unit)}</span>}
+          <span>{axisLabel(points[points.length - 1].key, unit)}</span>
         </div>
       </div>
 
       <table className="sr-only">
-        <caption>{label} по дням</caption>
+        <caption>
+          {label}, {rangeLabel}
+        </caption>
         <thead>
           <tr>
-            <th scope="col">День</th>
+            <th scope="col">{unit === "day" ? "День" : "Месяц"}</th>
             <th scope="col">Количество</th>
           </tr>
         </thead>
         <tbody>
           {points.map((point) => (
-            <tr key={point.day}>
-              <th scope="row">{dayFull(point.day)}</th>
+            <tr key={point.key}>
+              <th scope="row">{fullLabel(point.key, unit)}</th>
               <td>{point.value}</td>
             </tr>
           ))}

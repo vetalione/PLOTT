@@ -19,6 +19,7 @@ export type Stats = {
   totals: { wishes: number; done: number; claps: number };
   mine: { wishes: number; done: number; claps: number } | null;
   series: { day: string; wished: number; done: number }[];
+  months: { month: string; wished: number; done: number }[];
 };
 
 export class ApiError extends Error {
