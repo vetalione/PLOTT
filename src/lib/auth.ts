@@ -15,7 +15,18 @@ const baseURL =
       ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
       : undefined);
 
+// A site answers on both example.com and www.example.com, and hosts differ on which one is primary.
+// Whichever is configured, requests from its twin are our own too.
+function wwwTwin(url: string | undefined) {
+  if (!url) return undefined;
+  const twin = new URL(url);
+  if (!twin.hostname.includes(".") || /^[\d.]+$/.test(twin.hostname)) return undefined;
+  twin.hostname = twin.hostname.startsWith("www.") ? twin.hostname.slice(4) : `www.${twin.hostname}`;
+  return twin.origin;
+}
+
 const trustedOrigins = [
+  wwwTwin(baseURL),
   process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
   process.env.VERCEL_BRANCH_URL && `https://${process.env.VERCEL_BRANCH_URL}`,
 ].filter((v): v is string => Boolean(v));
