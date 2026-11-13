@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { db, schema } from "@/db";
 
 export type WishDTO = {
@@ -27,6 +27,17 @@ export function authorHue(row: { id: string; userId: string | null; toneKey: str
   return createHash("sha256").update(`plott-tone:${key}`).digest().readUInt16BE(0) % 360;
 }
 
+/** The few authors whose colour was picked by hand instead of derived. */
+async function pickedHues(rows: { userId: string | null }[]) {
+  const ids = [...new Set(rows.map((r) => r.userId).filter((id): id is string => id !== null))];
+  if (ids.length === 0) return new Map<string, number>();
+  const picked = await db
+    .select({ id: schema.user.id, hue: schema.user.toneHue })
+    .from(schema.user)
+    .where(and(inArray(schema.user.id, ids), isNotNull(schema.user.toneHue)));
+  return new Map(picked.map((p) => [p.id, ((p.hue! % 360) + 360) % 360]));
+}
+
 type Row = typeof schema.wish.$inferSelect & { instagram?: string | null };
 
 export async function toDTO(rows: Row[], viewerId: string | null): Promise<WishDTO[]> {
@@ -46,6 +57,7 @@ export async function toDTO(rows: Row[], viewerId: string | null): Promise<WishD
       );
     clapped = new Set(mine.map((m) => m.wishId));
   }
+  const picked = await pickedHues(rows);
   return rows.map((r) => ({
     id: r.id,
     text: r.text,
@@ -58,7 +70,7 @@ export async function toDTO(rows: Row[], viewerId: string | null): Promise<WishD
     mine: viewerId !== null && r.userId === viewerId,
     clapped: clapped.has(r.id),
     instagram: r.isPublic && r.showAuthor ? (r.instagram ?? null) : null,
-    hue: authorHue(r),
+    hue: (r.userId ? picked.get(r.userId) : undefined) ?? authorHue(r),
   }));
 }
 

@@ -23,6 +23,8 @@ export const user = pgTable("user", {
   // Guests get a real row so their wishes survive until they register.
   isAnonymous: boolean("is_anonymous").default(false),
   instagram: text("instagram"),
+  // A hand-picked colour (0–359) for this person's wishes; null means the automatic one.
+  toneHue: integer("tone_hue"),
   // When the "we moved" letter went out to someone carried over from the old app.
   relaunchSentAt: timestamp("relaunch_sent_at", { withTimezone: true }),
 });
