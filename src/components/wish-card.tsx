@@ -16,8 +16,10 @@ import {
 } from "@hugeicons/core-free-icons";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
+import { MOONCHAT, MOONCHAT_URL } from "@/lib/moonchat";
 import type { WishDTO } from "@/lib/wishes";
 import { formatDue } from "./due-date";
+import { Moon } from "./moon";
 
 const shortDate = (iso: string) => {
   const date = parseISO(iso);
@@ -49,6 +51,23 @@ const card =
 
 const toneStyle = (wish: WishDTO, index: number) =>
   ({ "--i": Math.min(index, 8), "--hue": wish.hue }) as React.CSSProperties;
+
+/** On a wish that mentions Moonchat: a small moon that opens the group's Telegram channel. */
+function MoonLink() {
+  return (
+    <a
+      href={MOONCHAT_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Мунчат в Телеграме"
+      title="Мунчат в Телеграме"
+      // the moon is small, so the link reaches a little past it to stay easy to tap
+      className="plush-focus-ring -m-1.5 block shrink-0 rounded-full p-1.5 [transition:scale_var(--plush-dur-spring)_var(--plush-ease-spring)] hover:scale-125 active:scale-(--plush-press-scale)"
+    >
+      <Moon className="block size-[18px] drop-shadow-[0_0_3px_rgba(8,137,58,.55)]" />
+    </a>
+  );
+}
 
 /** Wishes are usually a line or two; the rare essay folds until someone asks for all of it. */
 function WishText({ text, muted }: { text: string; muted?: boolean }) {
@@ -97,7 +116,11 @@ export function PublicWishCard({
       <div className="min-w-0 flex-1">
         <WishText text={wish.text} />
         <div className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-(length:--plush-text-xs) text-(--plush-ink-3)">
-          <span className="tone-dot" title="Цвет автора: у всех желаний одного человека он одинаковый" aria-hidden />
+          {MOONCHAT.test(wish.text) ? (
+            <MoonLink />
+          ) : (
+            <span className="tone-dot" title="Цвет автора: у всех желаний одного человека он одинаковый" aria-hidden />
+          )}
           {wish.instagram ? (
             <a
               href={`https://instagram.com/${wish.instagram}`}
@@ -164,6 +187,7 @@ export function MyWishCard({
       <div className="min-w-0 flex-1">
         <WishText text={wish.text} muted={done} />
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-(length:--plush-text-xs) text-(--plush-ink-3)">
+          {MOONCHAT.test(wish.text) && <MoonLink />}
           {done ? (
             <>
               <DoneBadge />

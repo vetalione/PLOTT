@@ -15,10 +15,9 @@ import { Switch } from "@/components/ui/switch";
 import { WishButton, type WishButtonState } from "@/components/wish-button";
 import { authClient } from "@/lib/auth-client";
 import { api, refreshAll, useMe } from "@/lib/client";
+import { MOONCHAT } from "@/lib/moonchat";
 
 const MAX = 280;
-// A wish that mentions the Moonchat group gets a visit from its moon.
-const MOONCHAT = /мун[\s-]?чат|moon[\s-]?chat/i;
 // Long enough to feel like the wish is travelling somewhere, short enough not to be a wait.
 const RITUAL_MS = 1500;
 
