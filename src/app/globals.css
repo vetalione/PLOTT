@@ -372,6 +372,193 @@ body {
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--tone) 28%, transparent);
 }
 
+/* ── Easter egg: the Moonchat moon rolls across the screen ─────────────── */
+
+.moon-roll {
+  --moon-start: 0.45s; /* lets the wish's own burst land first */
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Across: steady speed from just off the left edge to just off the right one. */
+.moon-roll-x {
+  position: absolute;
+  left: 0;
+  /* the top of the navigation bar is the ground it bounces on */
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 60px);
+  width: var(--moon-size);
+  height: var(--moon-size);
+  transform: translateX(calc(-1 * var(--moon-size)));
+  animation: moon-roll-x var(--moon-dur) linear var(--moon-start) both;
+}
+
+@keyframes moon-roll-x {
+  to {
+    transform: translateX(100vw);
+  }
+}
+
+/* Up and down: falls in, then three hops, each lower. The two curves are exact parabolas. */
+.moon-roll-y {
+  width: 100%;
+  height: 100%;
+  animation: moon-roll-y var(--moon-dur) var(--moon-start) both;
+}
+
+@keyframes moon-roll-y {
+  0% {
+    transform: translateY(calc(var(--moon-size) * -1.9));
+    animation-timing-function: cubic-bezier(0.33, 0, 0.67, 0.33);
+  }
+  21.6% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.33, 0.67, 0.67, 1);
+  }
+  39.1% {
+    transform: translateY(calc(var(--moon-size) * -1.25));
+    animation-timing-function: cubic-bezier(0.33, 0, 0.67, 0.33);
+  }
+  56.6% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.33, 0.67, 0.67, 1);
+  }
+  69.7% {
+    transform: translateY(calc(var(--moon-size) * -0.7));
+    animation-timing-function: cubic-bezier(0.33, 0, 0.67, 0.33);
+  }
+  82.8% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.33, 0.67, 0.67, 1);
+  }
+  91.4% {
+    transform: translateY(calc(var(--moon-size) * -0.3));
+    animation-timing-function: cubic-bezier(0.33, 0, 0.67, 0.33);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* A soft squash on each touchdown, a small stretch on the way back up. */
+.moon-roll-squash {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  animation: moon-roll-squash var(--moon-dur) ease-out var(--moon-start) both;
+}
+
+@keyframes moon-roll-squash {
+  0%,
+  19.5%,
+  27%,
+  54.5%,
+  62%,
+  81%,
+  88%,
+  100% {
+    transform: none;
+  }
+  21.6% {
+    transform: scale(1.14, 0.84);
+  }
+  24% {
+    transform: scale(0.96, 1.05);
+  }
+  56.6% {
+    transform: scale(1.1, 0.89);
+  }
+  59% {
+    transform: scale(0.97, 1.04);
+  }
+  82.8% {
+    transform: scale(1.06, 0.93);
+  }
+}
+
+.moon-roll-spin {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  animation: moon-roll-spin var(--moon-dur) linear var(--moon-start) both;
+}
+
+@keyframes moon-roll-spin {
+  to {
+    rotate: var(--moon-turns);
+  }
+}
+
+/* The green of the group's avatar, as a halo. */
+.moon-roll-glow {
+  position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+  /* the moon covers the middle, so the colour has to sit in the outer ring to be seen */
+  background: radial-gradient(closest-side, rgba(8, 137, 58, 0.8) 60%, rgba(8, 137, 58, 0.42) 74%, rgba(8, 137, 58, 0.14) 88%, transparent 100%);
+}
+
+.moon-spark {
+  position: absolute;
+  /* where the moon's centre is when it lands */
+  left: calc(var(--at) * (100vw + var(--moon-size)) - var(--moon-size) / 2);
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 60px);
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  background: currentColor;
+  /* a four-point star */
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+  animation: moon-spark 720ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--moon-start) + var(--moon-dur) * var(--at)) both;
+}
+
+@keyframes moon-spark {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.3) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(1.15) rotate(90deg);
+  }
+}
+
+@keyframes moon-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  20%,
+  75% {
+    opacity: 1;
+  }
+}
+
+/* Without motion the moon simply appears above the bar for a moment. */
+@media (prefers-reduced-motion: reduce) {
+  .moon-roll-x {
+    transform: translateX(calc(50vw - var(--moon-size) / 2));
+    animation: moon-fade 2.6s ease both;
+  }
+
+  .moon-roll-y,
+  .moon-roll-squash,
+  .moon-roll-spin {
+    animation: none;
+  }
+
+  .moon-spark {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wish-ring,
   .wish-glow,

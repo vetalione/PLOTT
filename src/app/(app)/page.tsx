@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useAuthDialog } from "@/components/auth-dialog";
 import { DueDateDialog, formatDue } from "@/components/due-date";
 import { LogoMark } from "@/components/logo";
+import { MoonRoll } from "@/components/moon-roll";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { WishButton, type WishButtonState } from "@/components/wish-button";
@@ -16,6 +17,8 @@ import { authClient } from "@/lib/auth-client";
 import { api, refreshAll, useMe } from "@/lib/client";
 
 const MAX = 280;
+// A wish that mentions the Moonchat group gets a visit from its moon.
+const MOONCHAT = /мун[\s-]?чат|moon[\s-]?chat/i;
 // Long enough to feel like the wish is travelling somewhere, short enough not to be a wait.
 const RITUAL_MS = 1500;
 
@@ -31,6 +34,8 @@ export default function WishPage() {
   // The calendar reads today's date, so it is only rendered once someone asks for it (never in the prerender).
   const [dateMounted, setDateMounted] = React.useState(false);
   const [shake, setShake] = React.useState(false);
+  // Counts easter-egg runs so each one starts fresh; 0 means nothing is rolling.
+  const [moon, setMoon] = React.useState(0);
   const textarea = React.useRef<HTMLTextAreaElement>(null);
 
   const isGuest = !me?.user || me.user.isGuest;
@@ -56,6 +61,7 @@ export default function WishPage() {
         new Promise((resolve) => window.setTimeout(resolve, RITUAL_MS)),
       ]);
       setState("done");
+      if (MOONCHAT.test(wish)) setMoon((n) => n + 1);
       void refreshAll();
     } catch (error) {
       setState("idle");
@@ -194,6 +200,8 @@ export default function WishPage() {
           </section>
         )}
       </div>
+
+      {moon > 0 && <MoonRoll key={moon} onDone={() => setMoon(0)} />}
 
       {dateMounted && (
         <DueDateDialog open={dateOpen} onOpenChange={setDateOpen} value={dueDate} onChange={setDueDate} />
